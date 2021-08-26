@@ -1,4 +1,4 @@
-FROM iflavoursbv/go-gin-alpine
+FROM golang
 
 COPY . /opt/Appserver
 
