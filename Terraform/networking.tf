@@ -1,7 +1,5 @@
-# 1. Create a VPC
-
 resource "aws_vpc" "simple-web-app" {
-  cidr_block = "10.0.0.0/16" // completely private 10.0 are fixed
+  cidr_block = "10.0.0.0/16"
   enable_dns_hostnames = true
 
   tags = {
@@ -9,13 +7,9 @@ resource "aws_vpc" "simple-web-app" {
   }
 }
 
-# 2. Create a Gateway
-
 resource "aws_internet_gateway" "simple-web-app" {
   vpc_id = aws_vpc.simple-web-app.id
 }
-
-# 3. Create a Route Table
 
 resource "aws_route_table" "allow-outgoing-access" {
   vpc_id = aws_vpc.simple-web-app.id
@@ -30,8 +24,6 @@ resource "aws_route_table" "allow-outgoing-access" {
   }
 }
 
-# 4.1 Create Subnet - Jenkins
-
 resource "aws_subnet" "subnet-public-jenkins" {
   cidr_block = "10.0.1.0/24"
   vpc_id = aws_vpc.simple-web-app.id
@@ -41,8 +33,6 @@ resource "aws_subnet" "subnet-public-jenkins" {
     Name = "Jenkins Subnet"
   }
 }
-
-# 4.2 Create Subnet - Simple Web App
 
 resource "aws_subnet" "subnet-public-web-app" {
   cidr_block = "10.0.3.0/24"
@@ -54,21 +44,15 @@ resource "aws_subnet" "subnet-public-web-app" {
   }
 }
 
-# 5.1 Create a Route Table Association --> associate Jenkins subnet to route table
-
 resource "aws_route_table_association" "jenkins-subnet" {
   subnet_id = aws_subnet.subnet-public-jenkins.id
   route_table_id = aws_route_table.allow-outgoing-access.id
 }
 
-# 5.2 Create a Route Table Association --> associate Simple Web App subnet to route table
-
 resource "aws_route_table_association" "web-app-subnet" {
   subnet_id = aws_subnet.subnet-public-web-app.id
   route_table_id = aws_route_table.allow-outgoing-access.id
 }
-
-# 6.1 Create a Security Group for inbound web traffic
 
 resource "aws_security_group" "allow-web-traffic" {
   name = "allow-web-traffic"
@@ -92,8 +76,6 @@ resource "aws_security_group" "allow-web-traffic" {
   }
 }
 
-# 6.2 Create a Security Group for inbound ssh
-
 resource "aws_security_group" "allow-ssh-traffic" {
   name = "allow-ssh-traffic"
   description = "Allow SSH inbound traffic"
@@ -107,8 +89,6 @@ resource "aws_security_group" "allow-ssh-traffic" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-# 6.3 Create a Security Group for inbound traffic to Jenkins
 
 resource "aws_security_group" "allow-jenkins-traffic" {
   name = "allow-jenkins-traffic"
@@ -124,8 +104,6 @@ resource "aws_security_group" "allow-jenkins-traffic" {
   }
 }
 
-# 6.4 Create a Security Group for inbound security checks
-
 resource "aws_security_group" "allow-staging-traffic" {
   name = "allow-stagin-traffic"
   description = "Allow Inbound traffic for security checks"
@@ -140,8 +118,6 @@ resource "aws_security_group" "allow-staging-traffic" {
   }
 }
 
-# 6.5 Create a Security Group for outbound traffic
-
 resource "aws_security_group" "allow-all-outbound" {
   name = "allow-all-outbound"
   description = "Allow all outbound traffic"
@@ -155,8 +131,6 @@ resource "aws_security_group" "allow-all-outbound" {
   }
 }
 
-# 7.1 Create a Network Interface for jenkins
-
 resource "aws_network_interface" "jenkins" {
   subnet_id = aws_subnet.subnet-public-jenkins.id
   private_ips = ["10.0.1.50"]
@@ -166,8 +140,6 @@ resource "aws_network_interface" "jenkins" {
                      aws_security_group.allow-staging-traffic.id]
 }
 
-# 7.2 Create a Network Interface for Simple Web App
-
 resource "aws_network_interface" "simple-web-app" {
   subnet_id = aws_subnet.subnet-public-web-app.id
   private_ips = ["10.0.3.50"]
@@ -176,24 +148,20 @@ resource "aws_network_interface" "simple-web-app" {
                       aws_security_group.allow-web-traffic.id ]
 }
 
-//# 8.1 Assign an Elastic IP to the Network Interface of Jenkins
-//
-//resource "aws_eip" "jenkins" {
-//  vpc = true
-//  network_interface = aws_network_interface.jenkins.id
-//  associate_with_private_ip = "10.0.1.50"
-//  depends_on = [
-//    aws_internet_gateway.simple-web-app
-//  ]
-//}
-//
-//# 8.2 Assign an Elastic IP to the Network Interface of Simple Web App
-//
-//resource "aws_eip" "simple-web-app" {
-//  vpc = true
-//  network_interface = aws_network_interface.simple-web-app.id
-//  associate_with_private_ip = "10.0.3.50"
-//  depends_on = [
-//    aws_internet_gateway.simple-web-app
-//  ]
-//}
+resource "aws_eip" "jenkins" {
+  vpc = true
+  network_interface = aws_network_interface.jenkins.id
+  associate_with_private_ip = "10.0.1.50"
+  depends_on = [
+    aws_internet_gateway.simple-web-app
+  ]
+}
+
+resource "aws_eip" "simple-web-app" {
+  vpc = true
+  network_interface = aws_network_interface.simple-web-app.id
+  associate_with_private_ip = "10.0.3.50"
+  depends_on = [
+    aws_internet_gateway.simple-web-app
+  ]
+}
