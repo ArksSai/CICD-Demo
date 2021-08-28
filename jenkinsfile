@@ -31,5 +31,15 @@ pipeline {
                 }
             }
         }
+        stage("Set up") {
+            steps {
+                echo "Set up"
+                script {
+                    sh """
+                    echo Set up
+                    """
+                }
+            }
+        }
     }
 }
