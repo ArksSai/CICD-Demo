@@ -1,42 +1,42 @@
 pipeline {
     agent any
     stages {
-        stage("Set up") {
+        stage("start") {
             steps {
-                echo "Set up"
+                echo "start"
                 script {
                     sh """
-                    echo Set up
+                    echo start
                     """
                 }
             }
         }
-        stage("Set up") {
+        stage("dev") {
             steps {
-                echo "Set up"
+                echo "dev"
                 script {
                     sh """
-                    echo Set up
+                    echo dev
                     """
                 }
             }
         }
-        stage("Set up") {
+        stage("test") {
             steps {
-                echo "Set up"
+                echo "test"
                 script {
                     sh """
-                    echo Set up
+                    echo test
                     """
                 }
             }
         }
-        stage("Set up") {
+        stage("deploy") {
             steps {
-                echo "Set up"
+                echo "deploy"
                 script {
                     sh """
-                    echo Set up
+                    echo deploy
                     """
                 }
             }
