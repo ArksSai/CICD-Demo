@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    stages {
+        stage("Set up") {
+            steps {
+                echo "Set up"
+                script {
+                    sh """
+                    echo Set up
+                    """
+                }
+            }
+        }
+        stage("Set up") {
+            steps {
+                echo "Set up"
+                script {
+                    sh """
+                    echo Set up
+                    """
+                }
+            }
+        }
+        stage("Set up") {
+            steps {
+                echo "Set up"
+                script {
+                    sh """
+                    echo Set up
+                    """
+                }
+            }
+        }
+    }
+}
