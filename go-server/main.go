@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-server/login"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,14 +16,12 @@ func router() *gin.Engine {
 	server.LoadHTMLFiles("template/html/login.html")
 	server.Static("/assets", "template/assets")
 
-	server.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.html", nil)
-	})
-
+	// GET test
 	server.GET("pingtest", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"msg": "pong"})
 	})
 
+	//POST test
 	server.POST("/posttest", func(c *gin.Context) {
 		var user User
 		if err := c.BindJSON(&user); err != nil {
@@ -31,6 +30,10 @@ func router() *gin.Engine {
 		}
 		c.JSON(http.StatusOK, gin.H{"msg": user})
 	})
+
+	//Login page
+	server.GET("/loging", login.LoginPage)
+
 	return server
 }
 
