@@ -1,0 +1,48 @@
+def testImage
+def stagingImage
+def productionImage
+
+pipeline {
+    agent any
+    stages {
+        stage("start") {
+            steps {
+                echo "start"
+                script {
+                    sh """
+                    echo start
+                    """
+                }
+            }
+        }
+        stage("Build Test Image") {
+            steps {
+                echo 'Start building the project docker image for tests'
+                script {
+                    testImage = docker.build("$REPOSITORY_TEST:$GIT_COMMIT_HASH", "-f ./Dockerfile.test .")
+                    testImage.push()
+                }
+            }
+        }
+        stage("Run Unit Tests") {
+            steps {
+                echo 'Run unit tests in the docker image'
+                script {
+                    def textMessage
+                    def inError
+                    try {
+                        testImage.inside('-v $WORKSPACE:/output -u root') {
+                            sh """
+                              cd /opt/Appserver/go-server
+                              go build -o main .
+                              ./main.go
+                            """
+                        }
+                    } catch(e) {
+                        echo "$e"
+                    }
+                }
+            }
+        }
+    }
+}
